@@ -1,29 +1,28 @@
 from django.shortcuts import get_object_or_404, render
-from django.utils import timezone
+from django.utils.timezone import now
 
+from .constants import POSTS_ON_INDEX
 from .models import Category, Post
 
-POSTS_ON_INDEX = 5
 
-
-def get_published_posts():
-    """Публикации, которые можно показывать на сайте."""
-    return Post.objects.select_related(
+def filter_published_posts(posts):
+    """Фильтрует посты: оставляет только опубликованные."""
+    return posts.select_related(
         'author', 'location', 'category'
     ).filter(
         is_published=True,
         category__is_published=True,
-        pub_date__lte=timezone.now(),
+        pub_date__lte=now(),
     )
 
 
 def index(request):
-    post_list = get_published_posts().order_by('-pub_date')[:POSTS_ON_INDEX]
+    post_list = filter_published_posts(Post.objects)[:POSTS_ON_INDEX]
     return render(request, 'blog/index.html', {'post_list': post_list})
 
 
-def post_detail(request, id):
-    post = get_object_or_404(get_published_posts(), pk=id)
+def post_detail(request, post_id):
+    post = get_object_or_404(filter_published_posts(Post.objects), pk=post_id)
     return render(request, 'blog/detail.html', {'post': post})
 
 
@@ -33,9 +32,7 @@ def category_posts(request, category_slug):
         slug=category_slug,
         is_published=True,
     )
-    post_list = get_published_posts().filter(
-        category=category
-    ).order_by('-pub_date')
+    post_list = filter_published_posts(category.posts)
     return render(
         request,
         'blog/category.html',
