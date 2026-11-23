@@ -5,7 +5,7 @@ from .constants import POSTS_ON_INDEX
 from .models import Category, Post
 
 
-def filter_published_posts(posts):
+def filter_posts_by_publication(posts):
     """Фильтрует посты: оставляет только опубликованные."""
     return posts.select_related(
         'author', 'location', 'category'
@@ -17,12 +17,15 @@ def filter_published_posts(posts):
 
 
 def index(request):
-    post_list = filter_published_posts(Post.objects)[:POSTS_ON_INDEX]
+    post_list = filter_posts_by_publication(Post.objects)[:POSTS_ON_INDEX]
     return render(request, 'blog/index.html', {'post_list': post_list})
 
 
 def post_detail(request, post_id):
-    post = get_object_or_404(filter_published_posts(Post.objects), pk=post_id)
+    post = get_object_or_404(
+        filter_posts_by_publication(Post.objects),
+        pk=post_id,
+    )
     return render(request, 'blog/detail.html', {'post': post})
 
 
@@ -32,7 +35,7 @@ def category_posts(request, category_slug):
         slug=category_slug,
         is_published=True,
     )
-    post_list = filter_published_posts(category.posts)
+    post_list = filter_posts_by_publication(category.posts)
     return render(
         request,
         'blog/category.html',

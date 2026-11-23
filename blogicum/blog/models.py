@@ -1,12 +1,12 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 
-from .constants import MAX_FIELD_LENGTH, MAX_STR_LENGTH
+from .constants import CHAR_FIELD_MAX_LENGTH, STR_MAX_LENGTH
 
 User = get_user_model()
 
 
-class PublishedCreatedModel(models.Model):
+class IsPublishedCreatedAtAbstract(models.Model):
     is_published = models.BooleanField(
         'Опубликовано',
         default=True,
@@ -19,8 +19,8 @@ class PublishedCreatedModel(models.Model):
         ordering = ('created_at',)
 
 
-class Category(PublishedCreatedModel):
-    title = models.CharField('Заголовок', max_length=MAX_FIELD_LENGTH)
+class Category(IsPublishedCreatedAtAbstract):
+    title = models.CharField('Заголовок', max_length=CHAR_FIELD_MAX_LENGTH)
     description = models.TextField('Описание')
     slug = models.SlugField(
         'Идентификатор',
@@ -31,27 +31,27 @@ class Category(PublishedCreatedModel):
         ),
     )
 
-    class Meta(PublishedCreatedModel.Meta):
+    class Meta(IsPublishedCreatedAtAbstract.Meta):
         verbose_name = 'категория'
         verbose_name_plural = 'Категории'
 
     def __str__(self):
-        return self.title[:MAX_STR_LENGTH]
+        return self.title[:STR_MAX_LENGTH]
 
 
-class Location(PublishedCreatedModel):
-    name = models.CharField('Название места', max_length=MAX_FIELD_LENGTH)
+class Location(IsPublishedCreatedAtAbstract):
+    name = models.CharField('Название места', max_length=CHAR_FIELD_MAX_LENGTH)
 
-    class Meta(PublishedCreatedModel.Meta):
+    class Meta(IsPublishedCreatedAtAbstract.Meta):
         verbose_name = 'местоположение'
         verbose_name_plural = 'Местоположения'
 
     def __str__(self):
-        return self.name[:MAX_STR_LENGTH]
+        return self.name[:STR_MAX_LENGTH]
 
 
-class Post(PublishedCreatedModel):
-    title = models.CharField('Заголовок', max_length=MAX_FIELD_LENGTH)
+class Post(IsPublishedCreatedAtAbstract):
+    title = models.CharField('Заголовок', max_length=CHAR_FIELD_MAX_LENGTH)
     text = models.TextField('Текст')
     pub_date = models.DateTimeField(
         'Дата и время публикации',
@@ -79,11 +79,11 @@ class Post(PublishedCreatedModel):
         verbose_name='Категория',
     )
 
-    class Meta(PublishedCreatedModel.Meta):
+    class Meta(IsPublishedCreatedAtAbstract.Meta):
         verbose_name = 'публикация'
         verbose_name_plural = 'Публикации'
         default_related_name = 'posts'
         ordering = ('-pub_date',)
 
     def __str__(self):
-        return self.title[:MAX_STR_LENGTH]
+        return self.title[:STR_MAX_LENGTH]
